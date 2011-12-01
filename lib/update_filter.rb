@@ -1,14 +1,41 @@
-require "active_record"
+module ActiveRecord
+    class Base
+        def self.before_update_filter(callback_method, options = {})
 
-$LOAD_PATH.unshift(File.dirname(__FILE__))
+            self.set_callback :save, :before do
+        
+              if options[:or_params].nil? && options[:and_params].nil?
+                 send callback_method
+              elsif !options[:or_params].nil? && options[:and_params].nil?
+                 send callback_method if options[:or_params].map{ |attr| attribute_changed?(attr.to_s) }.any?
+              elsif options[:or_params].nil? && !options[:and_params].nil?
+                 send callback_method if options[:and_params].map{ |attr| attribute_changed?(attr.to_s) }.all?
+              else
+                 send callback_method if options[:and_params].map{ |attr| attribute_changed?(attr.to_s) }.all? || options[:or_params].map{ |attr| attribute_changed?(attr.to_s) }.any?
+              end
+        
+            end
 
-require "update_filter/version"
-require "update_filter/railtie"
+         end
 
-require File.join(File.dirname(__FILE__), "update_filter/railtie")
+         def self.after_update_filter(callback_method, options = {})
 
-$LOAD_PATH.shift
 
-module UpdateFilter
-  autoload :Hook,            File.join(File.dirname(__FILE__), "update_filter/hook")
+             self.set_callback :save, :after do
+      
+               if options[:or_params].nil? && options[:and_params].nil?
+                  send callback_method
+               elsif !options[:or_params].nil? && options[:and_params].nil?
+                  send callback_method if options[:or_params].map{ |attr| attribute_changed?(attr.to_s) }.any?
+               elsif options[:or_params].nil? && !options[:and_params].nil?
+                  send callback_method if options[:and_params].map{ |attr| attribute_changed?(attr.to_s) }.all?
+               else
+                  send callback_method if options[:and_params].map{ |attr| attribute_changed?(attr.to_s) }.all? || options[:or_params].map{ |attr| attribute_changed?(attr.to_s) }.any?
+               end
+        
+             end
+
+          end
+
+    end
 end
