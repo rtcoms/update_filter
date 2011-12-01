@@ -1,0 +1,9 @@
+This gem provides before_update_filter and after_update_filter method for active record class
+
+Syntax :
+
+before_update_filter :callback_method, :or_params => [:attr1, :attr2], :and_params = > [:attr3, :attr4]
+
+after_update_filter :callback_method, :or_params => [:attr1, :attr2], :and_params = > [:attr3, :attr4]
+
+or_params
